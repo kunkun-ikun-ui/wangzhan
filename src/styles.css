@@ -1,0 +1,250 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+/* 作品集为固定浅色主题（深色 Hero + 珊瑚红波浪 + 浅灰内容区），不需要 dark 变体 */
+
+/* ===== 阿里巴巴普惠体 2.0（官方永久免费商用授权）=====
+   9 个字重统一注册为同一个 family "Alibaba PuHuiTi 2.0"，各自映射到标准 CSS
+   font-weight 数值，因此既有的 font-normal / font-medium / font-bold 等类会自动落到对应字重。
+
+   src 采用 local() 优先：直接命中访客设备里已安装的普惠体 2.0（设计师本机通常已装），
+   不转发任何字体文件、无跨域问题。若需让未安装该字体的访客也看到效果，把官网下载的
+   字体转成 woff2 放到 public/fonts/ 下并取消注释对应 url() 即可（文件名约定见下）。 */
+@font-face {
+  font-family: "Alibaba PuHuiTi 2.0";
+  /* src: url("/fonts/AlibabaPuHuiTi-2-35-Thin.woff2") format("woff2"), */
+  src: local("Alibaba PuHuiTi 2 35 Thin"), local("AlibabaPuHuiTi-2-35-Thin"),
+    local("阿里巴巴普惠体 2.0 35 Thin");
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Alibaba PuHuiTi 2.0";
+  /* src: url("/fonts/AlibabaPuHuiTi-2-45-Light.woff2") format("woff2"), */
+  src: local("Alibaba PuHuiTi 2 45 Light"), local("AlibabaPuHuiTi-2-45-Light"),
+    local("阿里巴巴普惠体 2.0 45 Light");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Alibaba PuHuiTi 2.0";
+  /* src: url("/fonts/AlibabaPuHuiTi-2-55-Regular.woff2") format("woff2"), */
+  src: local("Alibaba PuHuiTi 2 55 Regular"), local("AlibabaPuHuiTi-2-55-Regular"),
+    local("阿里巴巴普惠体 2.0 55 Regular");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Alibaba PuHuiTi 2.0";
+  /* src: url("/fonts/AlibabaPuHuiTi-2-65-Medium.woff2") format("woff2"), */
+  src: local("Alibaba PuHuiTi 2 65 Medium"), local("AlibabaPuHuiTi-2-65-Medium"),
+    local("阿里巴巴普惠体 2.0 65 Medium");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Alibaba PuHuiTi 2.0";
+  /* src: url("/fonts/AlibabaPuHuiTi-2-75-SemiBold.woff2") format("woff2"), */
+  src: local("Alibaba PuHuiTi 2 75 SemiBold"), local("AlibabaPuHuiTi-2-75-SemiBold"),
+    local("阿里巴巴普惠体 2.0 75 SemiBold");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Alibaba PuHuiTi 2.0";
+  /* src: url("/fonts/AlibabaPuHuiTi-2-85-Bold.woff2") format("woff2"), */
+  src: local("Alibaba PuHuiTi 2 85 Bold"), local("AlibabaPuHuiTi-2-85-Bold"),
+    local("阿里巴巴普惠体 2.0 85 Bold");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Alibaba PuHuiTi 2.0";
+  /* src: url("/fonts/AlibabaPuHuiTi-2-95-ExtraBold.woff2") format("woff2"), */
+  src: local("Alibaba PuHuiTi 2 95 ExtraBold"), local("AlibabaPuHuiTi-2-95-ExtraBold"),
+    local("阿里巴巴普惠体 2.0 95 ExtraBold");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Alibaba PuHuiTi 2.0";
+  /* src: url("/fonts/AlibabaPuHuiTi-2-105-Heavy.woff2") format("woff2"), */
+  src: local("Alibaba PuHuiTi 2 105 Heavy"), local("AlibabaPuHuiTi-2-105-Heavy"),
+    local("阿里巴巴普惠体 2.0 105 Heavy");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ring-offset-background: var(--background);
+
+  /* ===== 作品集专属 token：数值取自设计稿像素采样 ===== */
+  --color-ink: var(--ink);
+  --color-paper: var(--paper);
+  --color-coral: var(--coral);
+  --color-wave: var(--wave);
+  --color-lilac: var(--lilac);
+  --color-hero-card: var(--hero-card);
+  --color-hero-card-alt: var(--hero-card-alt);
+
+  /* 主内容容器左右留白（规范值 182px，窄屏由 CSS 变量覆盖收窄） */
+  --gutter: 182px;
+
+  --font-sans: var(--font-sans);
+}
+
+:root {
+  --radius: 0.625rem;
+  /* 全站统一使用阿里巴巴普惠体 2.0；后段为字体加载失败时的系统兜底 */
+  --font-sans: "Alibaba PuHuiTi 2.0", "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", ui-sans-serif, system-ui, -apple-system, sans-serif;
+
+  --background: oklch(0.965 0.005 95);
+  --foreground: oklch(0.17 0.01 60);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.17 0.01 60);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.17 0.01 60);
+  --primary: oklch(0.185 0.008 70);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.94 0.005 95);
+  --secondary-foreground: oklch(0.25 0.01 60);
+  --muted: oklch(0.94 0.005 95);
+  --muted-foreground: oklch(0.55 0.012 60);
+  --accent: oklch(0.925 0.006 95);
+  --accent-foreground: oklch(0.22 0.01 60);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.984 0.003 247.858);
+  --border: oklch(0.885 0.006 95);
+  --input: oklch(0.885 0.006 95);
+  --ring: oklch(0.55 0.02 60);
+
+  --ink: #131313;
+  --paper: #f4f3f1;
+  --coral: #f94a4a;
+  /* 作品介绍区底色：与新波浪切图填充色一致（旧版为红色 coral） */
+  --wave: #f6f6f6;
+  --lilac: #5b5bff;
+  --hero-card: #8a8a8a;
+  --hero-card-alt: #cfcfcf;
+}
+
+/* 首屏"03.经历"卡片渐变背景（水平方向，沿卡片长边铺满） */
+.hero-card-gradient {
+  background: linear-gradient(90deg, #1F6F8B 0%, #6FE0B5 60%, #B9A7F5 100%);
+}
+
+/* 首屏"02.技能"卡片渐变背景（135deg 对角线方向） */
+.hero-card-skills-gradient {
+  background: linear-gradient(135deg, #F59E0B 0%, #EF4444 55%, #A855F7 100%);
+}
+
+/* 首屏"01.作品"卡片渐变背景（135deg 对角线方向） */
+.hero-card-works-gradient {
+  background: linear-gradient(135deg, #2563EB 0%, #7C3AED 45%, #DB2777 100%);
+}
+
+/* 主 CTA 渐变：取自设计稿按钮规范（137deg，#804BFF → #584CFF 46.3% → #4DA6FF） */
+.btn-gradient-primary {
+  background: linear-gradient(137deg, #804bff 0%, #584cff 46.3%, #4da6ff 100%);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-paper);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    overflow-x: hidden;
+  }
+}
+
+@layer components {
+  /* 主内容容器：背景全宽、内容限宽 —— 左右各 --gutter 留白 */
+  .shell {
+    width: 100%;
+    padding-left: var(--gutter);
+    padding-right: var(--gutter);
+  }
+
+  /* 超大号板块序号水印（01 / 02 / 03） */
+  .section-numeral {
+    font-weight: 800;
+    line-height: 0.8;
+    letter-spacing: -0.04em;
+    color: var(--color-foreground);
+    opacity: 0.06;
+    user-select: none;
+  }
+}
+
+/* 响应式兜底：1920 设计稿下严格 182px；窄屏按比例收窄，避免内容被挤没。
+   背景仍全宽，仅内容留白变化。 */
+@media (max-width: 1400px) {
+  :root {
+    --gutter: 120px;
+  }
+}
+@media (max-width: 900px) {
+  :root {
+    --gutter: 56px;
+  }
+}
+@media (max-width: 600px) {
+  :root {
+    --gutter: 20px;
+  }
+}
+
+/* 横向滑轨：隐藏滚动条但保留滚动能力 */
+@layer utilities {
+  .rail-hide {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .rail-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
