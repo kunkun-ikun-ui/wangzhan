@@ -220,23 +220,9 @@
   }
 }
 
-/* 响应式兜底：1920 设计稿下严格 182px；窄屏按比例收窄，避免内容被挤没。
-   背景仍全宽，仅内容留白变化。 */
-@media (max-width: 1400px) {
-  :root {
-    --gutter: 120px;
-  }
-}
-@media (max-width: 900px) {
-  :root {
-    --gutter: 56px;
-  }
-}
-@media (max-width: 600px) {
-  :root {
-    --gutter: 20px;
-  }
-}
+/* 不要在这里加按视口宽度改 --gutter 的媒体查询。
+   舞台（src/lib/stage.ts）已经把整站冻结在 1765px 画布上等比缩放，留白恒等于设计稿的 182px；
+   媒体查询认的是真实视口、不认画布，再加就会和舞台叠加，在窄窗口把构图改掉（详见 AGENTS.md 维护规则）。 */
 
 /* 横向滑轨：隐藏滚动条但保留滚动能力 */
 @layer utilities {

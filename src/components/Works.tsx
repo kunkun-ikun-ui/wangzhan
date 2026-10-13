@@ -10,7 +10,22 @@ import { cn } from "@/lib/utils";
  *  - 标题、Tab、卡片全部限制在左右 182px 容器内（.shell）
  *  - 蓝色异形卡作为完整相框（background cover/center），内部正常排版
  *  - 点击卡片 → 全屏遮罩弹窗展示大图
+ *
+ * 本文件（以及舞台内所有组件）**不许出现 sm: / md: / lg: / min-[…]: 前缀**：
+ * 舞台把整站冻结在 1765px 画布上，媒体查询认的却是真实视口，两者叠加会让排布在窄窗口掉档
+ * （作品网格 3 列→1 列、字号掉档，整页高度随之跑掉）。尺寸一律写 ≥1280 那一档的值或固定 px。
+ *
+ * ⚠️ 塌缩 text-* 链时**必须同时敲定行高**：text-* 是「字号 + 行高」打包的，
+ * 而 text-[88px] 这类任意值只给字号 —— 原链里生效的行高往往由基础档提供
+ * （text-6xl=1、text-2xl=4/3…）。只留任意字号会漏回继承的 1.5，整页凭空变高。
  */
+
+/**
+ * 弹窗面板高度。舞台内不能再用 vh：vh 认真实视口、不认舞台，窗口高度一变弹窗就脱离设计稿。
+ * = 基准窗口内高 941px × 0.85 ≈ 800px。换基准窗口只改这一个数。
+ */
+const MODAL_HEIGHT = 800;
+
 export function Works() {
   const [tab, setTab] = useState(WORK_TABS[0]);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
@@ -41,27 +56,30 @@ export function Works() {
     >
       <div className="shell relative">
         {/* 波浪凹口 + 大序号 + 标题 */}
-        <header className="relative z-50 pt-24 sm:pt-32">
-          <span className="section-numeral absolute left-0 top-[-56px] text-[150px] leading-none sm:text-[210px] lg:text-[260px]" style={{ transform: "translateY(30px)" }}>
+        <header className="relative z-50 pt-32">
+          <span className="section-numeral absolute left-0 top-[-56px] text-[260px] leading-none" style={{ transform: "translateY(30px)" }}>
             01
           </span>
-          <h2 className="relative text-6xl font-extrabold tracking-tight text-ink sm:text-8xl lg:text-[88px]" style={{ transform: "translateY(-20px)" }}>
+          {/* 行高必须显式写：Tailwind 的 text-* 是「字号 + 行高」打包的，
+              原链里 ≥1024 生效的行高来自基础档 text-6xl 的 1（实测 88），
+              只留 text-[88px] 会漏回继承的 1.5 → 盒子 88 变 132，整页凭空 +44px。 */}
+          <h2 className="relative text-[88px] leading-none font-extrabold tracking-tight text-ink" style={{ transform: "translateY(-20px)" }}>
             2024-2026作品介绍
           </h2>
-          <p className="relative mt-3 text-2xl text-ink/70 sm:text-3xl" style={{ marginTop: "0px" }}>
+          <p className="relative mt-3 text-3xl text-ink/70" style={{ marginTop: "0px" }}>
             2024-2026 Design Portfolio
           </p>
         </header>
 
         {/* 分类 Tab */}
-        <div className="relative mt-8 flex flex-wrap items-center gap-x-18 gap-y-[6.75px] sm:mt-16" style={{ transform: "translateX(20px)" }}>
+        <div className="relative mt-16 flex flex-wrap items-center gap-x-18 gap-y-[6.75px]" style={{ transform: "translateX(20px)" }}>
           {WORK_TABS.map((t) => (
             <button
               key={t}
               type="button"
               onClick={() => setTab(t)}
               className={cn(
-                "cursor-pointer pb-3 text-xl transition-colors duration-200 sm:text-2xl",
+                "cursor-pointer pb-3 text-2xl transition-colors duration-200",
                 tab === t
                   ? "border-b-4 border-ink font-bold text-ink"
                   : "border-b-4 border-transparent text-ink/40 hover:text-ink/70"
@@ -72,8 +90,10 @@ export function Works() {
           ))}
         </div>
 
-        {/* 作品网格：手机 1 列、平板 2 列、宽屏 3 列（6 卡排成 3×2） */}
-        <div className="relative mt-10 grid grid-cols-1 gap-x-8 gap-y-12 pb-28 min-[640px]:grid-cols-2 min-[1280px]:grid-cols-3" style={{ transform: "translateY(-20px)" }}>
+        {/* 作品网格：列数恒为 3，与设计稿一致（卡片条数由 content.ts 决定，增删只改那里）。
+            不能再按视口塌缩成 1/2 列——舞台已把整站冻结在 1765px 画布上，
+            列数一变，卡片宽度和行数就跟着变，整页高与设计稿脱钩。 */}
+        <div className="relative mt-10 grid grid-cols-3 gap-x-8 gap-y-12 pb-28" style={{ transform: "translateY(-20px)" }}>
           {shown.map((w, i) => (
             <WorkCard key={w.id} work={w} index={i} onOpen={openModal} />
           ))}
@@ -147,7 +167,7 @@ function WorkCard({
           </span>
         ))}
       </div>
-      <h3 className="mt-[14px] text-2xl font-bold tracking-tight text-ink sm:text-3xl">
+      <h3 className="mt-[14px] text-3xl font-bold tracking-tight text-ink">
         {work.title}
       </h3>
       <p className="mt-2 text-base leading-relaxed text-ink/55">{work.desc}</p>
@@ -192,14 +212,15 @@ function WorkModal({
       aria-modal="true"
       aria-label={work.title}
       onClick={onClose}
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm sm:p-8"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-8 backdrop-blur-sm"
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="relative flex h-[85vh] w-full max-w-[1400px] flex-col overflow-hidden rounded-2xl bg-white"
+        className="relative flex w-full max-w-[1400px] flex-col overflow-hidden rounded-2xl bg-white"
+        style={{ height: MODAL_HEIGHT }}
       >
         {/* 顶部导航栏 */}
-        <header className="flex shrink-0 items-center justify-between border-b border-black/[0.06] px-4 py-3 sm:px-6">
+        <header className="flex shrink-0 items-center justify-between border-b border-black/[0.06] px-6 py-3">
           {/* 作品标题列表（仅显示当前Tab筛选后的作品） */}
           <nav className="flex flex-1 flex-wrap items-center gap-4 overflow-x-auto">
             {shown.map((w) => {
@@ -216,7 +237,7 @@ function WorkModal({
                     }
                   }}
                   className={cn(
-                    "shrink-0 text-sm font-medium transition-all duration-200 sm:text-base",
+                    "shrink-0 text-base font-medium transition-all duration-200",
                     isActive
                       ? "cursor-default rounded-md btn-gradient-primary px-4 py-1.5 text-white shadow-sm"
                       : "cursor-pointer text-ink/50 hover:text-ink"
@@ -243,7 +264,7 @@ function WorkModal({
         </header>
 
         {/* 图片展示区（可垂直滚动） */}
-        <div className="flex-1 overflow-y-auto bg-gray-100 p-4 sm:p-6">
+        <div className="flex-1 overflow-y-auto bg-gray-100 p-6">
           {currentImages.length > 0 ? (
             <div className="space-y-4">
               {currentImages.map((src, i) => (

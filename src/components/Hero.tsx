@@ -13,6 +13,13 @@ import heroBadge from "../assets/hero/badge.png";
  *  - 底层 hero-bg.png 作为普通 <img>，width:100% / height:auto / object-fit:cover（当前纯黑占位）
  *  - 三张旋转异形卡围绕圆形 Logo，hover scale(1.05)，点击跳转对应板块
  *  - 板块总高使「作品介绍区」顶部距页面顶端 1319px（波浪图自身高度计入下一板块）
+ *
+ * 本文件（以及舞台内所有组件）**不许出现 sm: / md: / lg: / min-[…]: 前缀**：
+ * 舞台把整站冻结在 1765px 画布上，媒体查询认的却是真实视口，两者叠加会让排布在窄窗口掉档。
+ * 尺寸一律写 ≥1280 那一档的值或固定 px。
+ *
+ * ⚠️ 下面 section 的 `height: HERO_HEIGHT` 与 `contain: layout style paint` 是
+ * 「全屏预览溢出遮挡第二屏」的唯一解法，**改动本文件时严禁删除或覆盖**（详见 AGENTS.md）。
  */
 const HERO_HEIGHT = 1319;
 
@@ -31,26 +38,40 @@ export function Hero() {
         className="absolute inset-0 z-0 h-full w-full object-cover"
       />
 
-      <div className="shell relative z-10 flex h-full flex-col pt-28 sm:pt-36">
+      <div className="shell relative z-10 flex h-full flex-col pt-36">
         {/* 标题区域已移除 */}
       </div>
 
       {/* 扇形卡片区：绝对定位 + rotate 还原原稿堆叠关系。
-          直接放在 Hero section 内（而非 .shell 内），top-[725px] 使第一张卡顶部落在导航栏下方约 700px。
-          left/right 使用 var(--gutter) 与 .shell 保持完全一致的响应式留白。 */}
-      <div className="pointer-events-none absolute top-[495px] z-20 h-[52%]" style={{ left: "var(--gutter)", right: "var(--gutter)" }}>
+          直接放在 Hero section 内（而非 .shell 内），top-[495px] 使第一张卡顶部落在导航栏下方约 700px。
+          宽度 = min(舞台宽 − 2×gutter, 1556px) 且水平居中（1765 − 364 = 1401，1556 封顶在舞台下已不生效，
+          保留只为万一舞台变宽时仍冻结在 1556 构图）。
+          高度由 aspect-ratio 从宽度推导（1556 : 685.88 = 设计稿下的实际高），而非按 Hero 高度取百分比——
+          宽度链与高度链同源，三张卡的宽高比才在任何视口下都锁定为设计稿值。 */}
+      <div
+        className="pointer-events-none absolute top-[495px] z-20"
+        style={{
+          left: 0,
+          right: 0,
+          width: "min(calc(100% - 2 * var(--gutter)), 1556px)",
+          marginInline: "auto",
+          aspectRatio: "1556 / 685.88",
+        }}
+      >
         {HERO_CARDS.map((card) => (
           <HeroFanCard key={card.id} card={card} />
         ))}
         <CircularBadge />
       </div>
 
-      {/* 波浪切图作为 Hero 首屏底部装饰层，压在扇形卡片之上 */}
+      {/* 波浪切图作为 Hero 首屏底部装饰层，压在扇形卡片之上。
+          高度由切图原生比例（1920 : 968）从舞台宽度推导，而非 vw——
+          vw 认的是真实视口、不认舞台，会随窗口单独缩放，导致波浪高度与卡片区脱钩。 */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-x-0 bottom-[-380px] z-30 bg-no-repeat"
         style={{
-          height: "min(50.42vw, 968px)",
+          aspectRatio: "1920 / 968",
           backgroundImage: `url(${WAVE_BG})`,
           backgroundSize: "100% auto",
           backgroundPosition: "top center",

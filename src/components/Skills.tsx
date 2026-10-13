@@ -9,6 +9,14 @@ import { cn } from "@/lib/utils";
  *  - 四个可横向滑动选项块（overflow-x:auto），hover 高亮 + 阴影
  *  - 下方大方形展示框 <img>，点击/悬停不同选项动态切换图片
  *  - 内容限制在 182px 容器内
+ *
+ * 本文件（以及舞台内所有组件）**不许出现 sm: / md: / lg: / min-[…]: 前缀**：
+ * 舞台把整站冻结在 1765px 画布上，媒体查询认的却是真实视口，两者叠加会让排布在窄窗口掉档
+ * （字号掉档、整页高度随之跑掉）。尺寸一律写 ≥1280 那一档的值或固定 px。
+ *
+ * ⚠️ 塌缩 text-* 链时**必须同时敲定行高**：text-* 是「字号 + 行高」打包的，
+ * 而 text-[88px] 这类任意值只给字号 —— 原链里生效的行高往往由基础档提供
+ * （text-6xl=1、text-8xl=1…）。只留任意字号会漏回继承的 1.5，整页凭空变高。
  */
 export function Skills() {
   const [activeId, setActiveId] = useState(SKILLS[0].id);
@@ -44,15 +52,18 @@ export function Skills() {
     <section id="skills" className="relative w-full bg-wave pt-[200px]">
       <div className="shell relative">
         {/* 右对齐标题 + 大序号水印 */}
-        <header className="relative pt-24 sm:pt-32">
-          <span className="section-numeral absolute right-0 top-[-56px] text-[150px] leading-none sm:text-[210px] lg:text-[260px]" style={{ transform: "translateY(30px)" }}>
+        <header className="relative pt-32">
+          <span className="section-numeral absolute right-0 top-[-56px] text-[260px] leading-none" style={{ transform: "translateY(30px)" }}>
             02
           </span>
           <div className="relative text-right">
-            <h2 className="text-6xl font-extrabold tracking-tight text-ink sm:text-8xl lg:text-[88px]" style={{ transform: "translateY(-20px)" }}>
+            {/* 行高必须显式写：Tailwind 的 text-* 是「字号 + 行高」打包的，
+                原链里 ≥1024 生效的行高来自基础档 text-6xl 的 1（实测 88），
+                只留 text-[88px] 会漏回继承的 1.5 → 盒子 88 变 132，整页凭空 +44px。 */}
+            <h2 className="text-[88px] leading-none font-extrabold tracking-tight text-ink" style={{ transform: "translateY(-20px)" }}>
               工作技能
             </h2>
-            <p className="mt-3 text-2xl text-ink/70 sm:text-3xl" style={{ marginTop: "0px" }}>
+            <p className="mt-3 text-3xl text-ink/70" style={{ marginTop: "0px" }}>
               2024-2026 Design Portfolio
             </p>
           </div>
@@ -81,8 +92,8 @@ export function Skills() {
         </div>
 
         {/* 大方形展示框 */}
-        <div className="reveal relative mt-10 overflow-hidden rounded-[28px] border border-black/[0.06] bg-white p-7 sm:p-9">
-          <h3 className="text-lg font-bold text-ink sm:text-xl">{current.name}</h3>
+        <div className="reveal relative mt-10 overflow-hidden rounded-[28px] border border-black/[0.06] bg-white p-9">
+          <h3 className="text-xl font-bold text-ink">{current.name}</h3>
           <p className="mt-2 text-sm text-ink/55">{current.desc}</p>
           <div className="relative mt-7 aspect-[16/9] w-full overflow-hidden rounded-2xl border border-black/[0.06] bg-[repeating-linear-gradient(135deg,rgba(19,19,19,0.04)_0_12px,transparent_12px_24px)]">
             {/* 真实素材补进 assets.SKILL_SHOWCASES[技能id] 后自动替换此占位层 */}
@@ -141,7 +152,7 @@ function SkillTile({
       <span className="grid h-12 w-12 place-items-center rounded-[14px] bg-ink text-white">
         <span className="h-4 w-4 rounded-[5px] bg-white/25" />
       </span>
-      <h4 className="mt-14 text-base font-bold text-ink sm:text-lg">{skill.name}</h4>
+      <h4 className="mt-14 text-lg font-bold text-ink">{skill.name}</h4>
       <p className="mt-2 text-[13px] leading-relaxed text-ink/50">{skill.desc}</p>
     </button>
   );

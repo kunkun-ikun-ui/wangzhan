@@ -4,10 +4,14 @@ import ReactDOM from "react-dom/client";
 import { RouterProvider } from "@tanstack/react-router";
 import { getRouter } from "./router";
 import { initRevealEngine } from "./lib/reveal-engine";
+import { initStage } from "./lib/stage";
 import "./styles.css";
 
 // 全局滚动渐入引擎：业务元素只需加 class="reveal"（详见 lib/reveal-engine.ts），勿删
 initRevealEngine();
+
+// 整页等比缩放舞台：必须在 React 首次渲染前算好 --stage-s（详见 lib/stage.ts），勿删
+initStage();
 
 const router = getRouter();
 

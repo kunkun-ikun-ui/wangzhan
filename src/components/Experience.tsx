@@ -10,6 +10,16 @@ import { cn } from "@/lib/utils";
  *  - 点击某行标题 → 该行展开、其他行自动闭合（互斥）
  *  - 用 max-height + transition 实现平滑高度过渡
  *  - 内容限制在 182px 容器内
+ *
+ * 本文件（以及舞台内所有组件）**不许出现 sm: / md: / lg: / min-[…]: 前缀**：
+ * 舞台把整站冻结在 1765px 画布上，媒体查询认的却是真实视口，
+ * 两者叠加会让排布在窄窗口掉档（配图网格 3 列→2 列、字号掉档，整页高度随之跑掉）。
+ * 尺寸一律写 ≥1280 那一档的值或固定 px。
+ *
+ * ⚠️ 塌缩 text-* 链时**必须同时敲定行高**：text-* 是「字号 + 行高」打包的，
+ * 而 text-[88px] 这类任意值只给字号 —— 原链里生效的行高往往由基础档提供
+ * （text-6xl=1、sm:text-2xl=4/3…）。只留任意字号会漏回继承的 1.5，整页凭空变高。
+ * 有显式 leading-* 的行不用管（--tw-leading 一定胜出），没有的要补 leading-none / leading-[比例]。
  */
 export function Experience() {
   const [openId, setOpenId] = useState<string | null>(EXPERIENCES[0]?.id ?? null);
@@ -17,14 +27,17 @@ export function Experience() {
   return (
     <section id="experience" className="relative w-full bg-wave pt-[220px]">
       <div className="shell relative" style={{ transform: "translateX(15px)" }}>
-        <header className="relative pt-24 sm:pt-32">
-          <span className="section-numeral absolute left-0 top-[-56px] text-[150px] leading-none sm:text-[210px] lg:text-[260px]" style={{ transform: "translateY(30px)" }}>
+        <header className="relative pt-32">
+          <span className="section-numeral absolute left-0 top-[-56px] text-[260px] leading-none" style={{ transform: "translateY(30px)" }}>
             03
           </span>
-          <h2 className="relative text-6xl font-extrabold tracking-tight text-ink sm:text-8xl lg:text-[88px]" style={{ transform: "translateY(-20px)" }}>
+          {/* 行高必须显式写：Tailwind 的 text-* 是「字号 + 行高」打包的，
+              原链里 ≥1024 生效的行高来自基础档 text-6xl 的 1（不是 lg:text-[88px]，任意值只给字号）。
+              只留 text-[88px] 会漏回继承的 1.5，盒子 88 → 132，整页凭空 +44px。 */}
+          <h2 className="relative text-[88px] leading-none font-extrabold tracking-tight text-ink" style={{ transform: "translateY(-20px)" }}>
             工作经历
           </h2>
-          <p className="relative mt-3 text-2xl text-ink/70 sm:text-3xl" style={{ marginTop: "0px" }}>
+          <p className="relative mt-3 text-3xl text-ink/70" style={{ marginTop: "0px" }}>
             2024-2026 Design Portfolio
           </p>
         </header>
@@ -64,7 +77,8 @@ function ExperienceRow({
         aria-expanded={open}
         className="group flex w-full cursor-pointer items-center justify-between gap-6 py-7 text-left"
       >
-        <h3 className="text-xl font-bold tracking-tight text-ink transition-colors duration-200 group-hover:text-ink/70 sm:text-2xl lg:text-[28px]">
+        {/* leading-[1.3333] = 原 sm:text-2xl 自带的行高（28 × 4/3 = 37.33px），塌缩后必须显式补回 */}
+        <h3 className="text-[28px] leading-[1.3333] font-bold tracking-tight text-ink transition-colors duration-200 group-hover:text-ink/70">
           {item.period}&nbsp;&nbsp;{item.role}
         </h3>
         <span
@@ -95,19 +109,19 @@ function ExperienceRow({
         <div className="overflow-hidden">
           <div className="pb-9">
             {item.company && (
-              <p className="text-base font-semibold text-ink/80 sm:text-lg">
+              <p className="text-lg font-semibold text-ink/80">
                 {item.company}
               </p>
             )}
             {item.detail && (
-              <p className="mt-4 max-w-[1100px] text-[13px] leading-[1.9] text-ink/60 sm:text-sm">
+              <p className="mt-4 max-w-[1100px] text-sm leading-[1.9] text-ink/60">
                 {item.detail}
               </p>
             )}
 
             {/* 配图槽位：数量由数据驱动，真实素材补进 assets.EXPERIENCE_IMAGES */}
             {item.imageCount > 0 && (
-              <div className="mt-7 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="mt-7 grid grid-cols-3 gap-6">
                 {Array.from({ length: item.imageCount }).map((_, i) => (
                   <figure
                     key={i}
