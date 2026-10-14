@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { WORKS, WORK_TABS, type WorkItem } from "../site/content";
-import { CARD_BG, WORK_DETAILS, workThumb } from "../site/assets";
+import { CARD_BG, workDetail, workThumb } from "../site/assets";
 import { cn } from "@/lib/utils";
 
 /**
@@ -19,12 +19,6 @@ import { cn } from "@/lib/utils";
  * 而 text-[88px] 这类任意值只给字号 —— 原链里生效的行高往往由基础档提供
  * （text-6xl=1、text-2xl=4/3…）。只留任意字号会漏回继承的 1.5，整页凭空变高。
  */
-
-/**
- * 弹窗面板高度。舞台内不能再用 vh：vh 认真实视口、不认舞台，窗口高度一变弹窗就脱离设计稿。
- * = 基准窗口内高 941px × 0.85 ≈ 800px。换基准窗口只改这一个数。
- */
-const MODAL_HEIGHT = 800;
 
 export function Works() {
   const [tab, setTab] = useState(WORK_TABS[0]);
@@ -189,7 +183,9 @@ function WorkModal({
   onClose: () => void;
   onNavigate: (index: number) => void;
 }) {
-  const currentImages = WORK_DETAILS[work.id] ? [WORK_DETAILS[work.id]] : [];
+  // 弹窗大图：WORK_DETAILS 里未填的 id 回退到占位长图（见 src/site/assets.ts 的 workDetail）
+  const detail = workDetail(work.id);
+  const currentImages = detail ? [detail] : [];
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -207,17 +203,28 @@ function WorkModal({
   }, [onClose]);
 
   return (
+    /**
+     * 弹窗几何（舞台内，尺寸一律是画布 px）：
+     *  - 遮罩是 fixed inset-0，画布盒 = innerWidth/s × innerHeight/s（fixed 盒的包含块就是初始包含块）。
+     *  - 四边留白 = 遮罩上的这一条 p-[36px]，四边同值（画布 px）。面板 w-full 铺满内容盒，
+     *    故 面板宽 = 遮罩宽 − 72：1780 下 1708、900 下 1722.92 画布 px，各窗口有 ±1.3% 漂移，
+     *    因为遮罩画布宽 = innerWidth/s 略大于 1765 且越宽越贴近。
+     *  - **不要给面板加 max-w 封顶**：一加，宽窗口下留白就不再等比缩放（会变成 (遮罩宽 − max-w)/2）。
+     *  - 面板高度不设：flex 默认 align-items: stretch（所以遮罩上**不能**加 items-center），
+     *    面板自动撑满遮罩内容盒，即 高度 = innerHeight/s − 72，窗口 resize 自动跟随，零 JS、零 calc。
+     * ⚠️ 这里**不能**用 vh/dvh/svh：实测(900 窗口)舞台内 height:100vh 的 computed 是 939.99 画布 px、
+     *    视觉仅 471.33px —— 只有窗口高的一半。vh 认真实视口、不按 zoom 换算。
+     */
     <div
       role="dialog"
       aria-modal="true"
       aria-label={work.title}
       onClick={onClose}
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-8 backdrop-blur-sm"
+      className="fixed inset-0 z-[100] flex justify-center bg-black/80 p-[36px] backdrop-blur-sm"
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="relative flex w-full max-w-[1400px] flex-col overflow-hidden rounded-2xl bg-white"
-        style={{ height: MODAL_HEIGHT }}
+        className="relative flex w-full flex-col overflow-hidden rounded-2xl bg-white"
       >
         {/* 顶部导航栏 */}
         <header className="flex shrink-0 items-center justify-between border-b border-black/[0.06] px-6 py-3">
