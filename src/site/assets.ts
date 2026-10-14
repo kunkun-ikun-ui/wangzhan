@@ -2,6 +2,7 @@ import heroBgUrl from "../assets/site/hero-bg.png";
 import waveBgUrl from "../assets/site/wave-bg.png";
 import cardBgUrl from "../assets/site/card-bg.png";
 import workDetailPlaceholderUrl from "../assets/site/work-detail-placeholder.png";
+import skillShowcasePlaceholderUrl from "../assets/site/skill-showcase-placeholder.png";
 
 /**
  * 切图资源层 —— 全站唯一图片路径出口。
@@ -12,6 +13,7 @@ import workDetailPlaceholderUrl from "../assets/site/work-detail-placeholder.png
  *   card-bg.png → CARD_BG   （蓝色异形卡相框，已用用户真实切图）
  *   img-placeholder.jpg → IMG_PLACEHOLDER（通用图片占位）
  *   work-detail-placeholder.png → WORK_DETAIL_PLACEHOLDER（作品弹窗大图占位长图）
+ *   skill-showcase-placeholder.png → SKILL_SHOWCASE_PLACEHOLDER（技能展示图占位长图）
  *
  * ⚠️ 后续替换素材只需改本文件常量，无需触碰任何组件。
  */
@@ -42,8 +44,12 @@ export const WORK_DETAIL_PLACEHOLDER = workDetailPlaceholderUrl;
 /** 工作经历配图槽位 */
 export const EXPERIENCE_IMAGES: Record<string, string[]> = {};
 
-/** 技能展示大图槽位，key 为技能 id */
+/** 技能展示大图槽位，key 为技能 id；留空的 id 自动回退到占位长图 */
 export const SKILL_SHOWCASES: Record<string, string> = {};
+
+/** 技能展示图占位长图（1920×10108，整站整页截屏，比例 5.26）。
+ *  真实大图补齐前所有技能共用；换图只需替换 src/assets/site/skill-showcase-placeholder.png */
+export const SKILL_SHOWCASE_PLACEHOLDER = skillShowcasePlaceholderUrl;
 
 /** 取作品缩略图，无素材时回退占位 */
 export function workThumb(index: number): string {
@@ -53,4 +59,9 @@ export function workThumb(index: number): string {
 /** 取作品弹窗大图，无素材时回退占位长图 */
 export function workDetail(id: string): string {
   return WORK_DETAILS[id] ?? WORK_DETAIL_PLACEHOLDER;
+}
+
+/** 取技能展示大图，无素材时回退占位长图 */
+export function skillShowcase(id: string): string {
+  return SKILL_SHOWCASES[id] ?? SKILL_SHOWCASE_PLACEHOLDER;
 }

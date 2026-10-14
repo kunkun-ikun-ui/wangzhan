@@ -1,6 +1,6 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useLayoutEffect } from "react";
 import { SKILLS, type SkillItem } from "../site/content";
-import { SKILL_SHOWCASES } from "../site/assets";
+import { skillShowcase } from "../site/assets";
 import { cn } from "@/lib/utils";
 
 /**
@@ -21,7 +21,10 @@ import { cn } from "@/lib/utils";
 export function Skills() {
   const [activeId, setActiveId] = useState(SKILLS[0].id);
   const current = SKILLS.find((s) => s.id === activeId) ?? SKILLS[0];
+  // 展示图：SKILL_SHOWCASES 里未填的 id 回退到占位长图（见 src/site/assets.ts 的 skillShowcase）
+  const showcase = skillShowcase(current.id);
   const optionsRef = useRef<HTMLDivElement>(null);
+  const frameRef = useRef<HTMLDivElement>(null);
   const [railWidth, setRailWidth] = useState(0);
 
   useEffect(() => {
@@ -47,6 +50,14 @@ export function Skills() {
       return () => window.removeEventListener("resize", updateWidth);
     }
   }, []);
+
+  // 切标签回到展示图顶部：换图不会自动重置框内滚动位置（实测切标签后 scrollTop 仍停在 3000），
+  // 必须显式清掉，否则新图一进来就停在半截。
+  // 用 useLayoutEffect 而非 useEffect：它在浏览器绘制前执行，不会先闪一帧旧滚动位置
+  // （本应用是 createRoot 纯客户端渲染，无 SSR，用 layout effect 不触发告警）。
+  useLayoutEffect(() => {
+    if (frameRef.current) frameRef.current.scrollTop = 0;
+  }, [current.id]);
 
   return (
     <section id="skills" className="relative w-full bg-wave pt-[200px]">
@@ -95,14 +106,19 @@ export function Skills() {
         <div className="reveal relative mt-10 overflow-hidden rounded-[28px] border border-black/[0.06] bg-white p-9">
           <h3 className="text-xl font-bold text-ink">{current.name}</h3>
           <p className="mt-2 text-sm text-ink/55">{current.desc}</p>
-          <div className="relative mt-7 aspect-[16/9] w-full overflow-hidden rounded-2xl border border-black/[0.06] bg-[repeating-linear-gradient(135deg,rgba(19,19,19,0.04)_0_12px,transparent_12px_24px)]">
-            {/* 真实素材补进 assets.SKILL_SHOWCASES[技能id] 后自动替换此占位层 */}
-            {SKILL_SHOWCASES[current.id] ? (
+          {/* 展示框：框高由 aspect-[16/9] 定死（页面高度因此不随图变），长图在框内纵向滚动。
+              图宽铺满 + 高度 auto 保持原比例；**不要**加 h-full / object-cover（那会把长图裁掉）。 */}
+          <div
+            ref={frameRef}
+            className="relative mt-7 aspect-[16/9] w-full overflow-y-auto overflow-x-hidden rounded-2xl border border-black/[0.06] bg-[repeating-linear-gradient(135deg,rgba(19,19,19,0.04)_0_12px,transparent_12px_24px)]"
+          >
+            {/* 真实素材填进 assets.SKILL_SHOWCASES[技能id] 后自动替换此占位长图 */}
+            {showcase ? (
               <img
                 key={current.id}
-                src={SKILL_SHOWCASES[current.id]}
+                src={showcase}
                 alt={current.name}
-                className="h-full w-full object-cover"
+                className="w-full"
                 onError={(e) => {
                   e.currentTarget.style.visibility = "hidden";
                 }}
